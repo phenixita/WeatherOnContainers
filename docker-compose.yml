@@ -1,0 +1,49 @@
+version: '3.4'
+
+services:
+
+  weatherapi:
+    image: ${DOCKER_REGISTRY-}weatherapi
+    build:
+      context: .
+      dockerfile: WeatherAPI/Dockerfile
+    environment:
+      ASPNETCORE_URLS: "http://+:5001;https://+:5002"
+    ports:
+      - "5001:5001"
+      - "5002:5002"
+    networks:
+      - mynet
+
+
+
+  weathermvc:
+    image: ${DOCKER_REGISTRY-}weathermvc
+    build:
+      context: .
+      dockerfile: WeatherMVC/Dockerfile
+    environment:
+      ASPNETCORE_URLS: "http://+:9001;https://+:9002"
+    ports:
+      - "9001:9001"
+      - "9002:9002"
+    networks:
+      - mynet
+
+  weatherwizardinternalapi:
+    image: ${DOCKER_REGISTRY-}weatherwizardinternalapi
+    build:
+      context: .
+      dockerfile: WeatherWizardInternalAPI/Dockerfile
+    networks:
+      - mynet
+    environment:
+      ASPNETCORE_URLS: "http://+:6001;https://+:6002"
+    ports:
+      - "6001:6001"
+      - "6002:6002"
+
+networks:
+  mynet:
+    driver: bridge
+
