@@ -39,7 +39,7 @@ namespace WeatherAPI.Controllers
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
             if (FailMode.Failing)
             {
@@ -51,13 +51,15 @@ namespace WeatherAPI.Controllers
                 return StatusCode((int)HttpStatusCode.TooManyRequests);
             }
 
-            return Ok(Enumerable.Range(1, 5).Select(async (index) => new WeatherForecast
-            {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = int.Parse(await GetTemperature()),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray());
+            var forecasts = await Task.WhenAll(
+                Enumerable.Range(1, 5).Select(async index => new WeatherForecast
+                {
+                    Date = DateTime.Now.AddDays(index),
+                    TemperatureC = int.Parse(await GetTemperature()),
+                    Summary = Summaries[Random.Shared.Next(Summaries.Length)]
+                }));
+
+            return Ok(forecasts);
         }
 
         private async Task<string> GetTemperature()
